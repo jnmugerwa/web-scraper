@@ -1,3 +1,3 @@
 # web-scraper
 
-A simple web parser and AirBnB implementation.
+A simple web parser. AirBnB parser implementation included.
