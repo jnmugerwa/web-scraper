@@ -1,7 +1,5 @@
 import unittest
-
 from main.AirBnBScraper import AirBnBScraper
-from main.AirBnBStay import AirBnBStay
 
 
 class TestAirBnBScraper(unittest.TestCase):
@@ -25,14 +23,6 @@ class TestAirBnBScraper(unittest.TestCase):
         """
         stays = self.scraper.scrape(*self.query_params)
         self.assertNotEqual(len(stays), 0)
-
-    def test_json_encoding(self):
-        """
-        Testing JSON encoding on ground truth.
-        """
-        stay = AirBnBStay("fake_booking.com", "fake_photo.com", "description", "100.24", "4.91")
-        stay_as_json = stay.as_json()
-        self.assertEqual(len(stay_as_json), 155)
 
     def test_param_validation_date_bad1(self):
         """
@@ -64,7 +54,7 @@ class TestAirBnBScraper(unittest.TestCase):
         paramsGood = (200.00, "2020-06-08", "2020-06-09", ("brooklyn", "ny"), 2)
 
         check_all_at_once = not (
-                    self.scraper.params_are_valid(*paramsBad1) or self.scraper.params_are_valid(*paramsBad2)) \
+                self.scraper.params_are_valid(*paramsBad1) or self.scraper.params_are_valid(*paramsBad2)) \
                             and self.scraper.params_are_valid(*paramsGood)
 
         self.assertTrue(check_all_at_once)

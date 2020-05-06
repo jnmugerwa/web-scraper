@@ -37,7 +37,6 @@ class AirBnBStay:
                    "rating" : self.rating}
         return dumps(as_dict, indent=4)
 
-
     def __eq__(self, other):
         """
         Equality override.

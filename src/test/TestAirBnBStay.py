@@ -23,6 +23,14 @@ class TestAirBnBStay(unittest.TestCase):
         self.repr_and_str_stay = AirBnBStay("https://www.airbnb.com/rooms/34071681?adults=2&check_in=2020-06-08&"
                                             "check_out=2020-06-09&source_impression_id=p3_1588716487_"
                                             "Vd%2BR6uZlUgK9k9rx", price="100.50", rating="4.85")
+        self.json_stay = AirBnBStay("fake_booking.com", "fake_photo.com", "description", "100.24", "4.91")
+
+    def test_json_encoding(self):
+        """
+        Testing JSON encoding on ground truth.
+        """
+        stay_as_json = self.json_stay.as_json()
+        self.assertEqual(len(stay_as_json), 155)
 
     def test_str(self):
         """
