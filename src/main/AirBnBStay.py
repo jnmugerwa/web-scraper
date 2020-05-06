@@ -1,3 +1,5 @@
+from json import dumps
+
 class AirBnBStay:
     """
     A property listed on AirBnB.
@@ -22,6 +24,19 @@ class AirBnBStay:
         self.description = description
         self.price = price
         self.rating = rating
+
+    def as_json(self):
+        """
+        JSON conversion.
+        :return: A JSON Object (str) representation of the stay.
+        """
+        as_dict = {"booking_url" : self.booking_url,
+                   "photo_url" : self.photo_url,
+                   "description" : self.description,
+                   "price" : self.price,
+                   "rating" : self.rating}
+        return dumps(as_dict, indent=4)
+
 
     def __eq__(self, other):
         """
