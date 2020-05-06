@@ -35,7 +35,7 @@ class AirBnBStay:
                    "description" : self.description,
                    "price" : self.price,
                    "rating" : self.rating}
-        return dumps(as_dict, indent=4)
+        return dumps(as_dict)
 
     def __eq__(self, other):
         """

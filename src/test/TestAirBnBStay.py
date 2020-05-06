@@ -30,7 +30,7 @@ class TestAirBnBStay(unittest.TestCase):
         Testing JSON encoding on ground truth.
         """
         stay_as_json = self.json_stay.as_json()
-        self.assertEqual(len(stay_as_json), 155)
+        self.assertEqual(133, len(stay_as_json))
 
     def test_str(self):
         """
