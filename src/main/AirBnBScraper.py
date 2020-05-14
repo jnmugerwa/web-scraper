@@ -3,7 +3,7 @@ from main.WebScraper import WebScraper
 from bs4 import BeautifulSoup as soup
 import re
 from time import sleep
-
+from multiprocessing import Pool
 
 class AirBnBScraper(WebScraper):
     """
@@ -27,11 +27,13 @@ class AirBnBScraper(WebScraper):
         self.max_retries = 3
         """ int: Number of times to retry a query before giving up."""
 
-    def scrape(self, max_price, checkin, checkout, location, num_rooms):
+    def scrape(self, max_price, checkin, checkout, location, num_rooms, multiprocessed=False):
         """
         Scrapes AirBnB.com for stays with the given parameters then filters the results using the scraper's filter map.
         Will re-try if the scrape was unsuccessful, up to "self.max_retries" times with a "self.sleep_timer" cooldown.
 
+        :param multiprocessed: boolean
+            If true, we will multiprocess the construction of each AirBnB stay.
         :param max_price: float
             The maximum price-per-night of a stay (added to filter then used to filter, after query)
         :param checkin: string
@@ -60,7 +62,7 @@ class AirBnBScraper(WebScraper):
         url = self.build_search_url(checkin, checkout, location, num_rooms)
         num_retries = 0
         stays = []
-        while (len(stays) == 0 or not stays) and num_retries <= self.max_retries:
+        while not stays and num_retries <= self.max_retries:
             sleep(self.sleep_timer)  # To ensure we don't get banned by the host URL, pause before each scrape.
             num_retries += 1
 
@@ -72,35 +74,44 @@ class AirBnBScraper(WebScraper):
                 print("ERROR: No AirBnB's matched the given preferences.")
                 return None
 
-            stays = []  # Reset
-            for stay_div in all_stays_div:
-                try:
-                    booking_url = self.get_booking_url(stay_div)
-                except AttributeError:
-                    booking_url = None
-                try:
-                    photo_url = self.get_photo_url(stay_div)
-                except AttributeError:
-                    photo_url = None
-                try:
-                    description = self.get_description(stay_div)
-                except AttributeError:
-                    description = None
-                try:
-                    price = self.get_price(stay_div)
-                except AttributeError:
-                    price = None
-                try:
-                    rating = self.get_rating(stay_div)
-                except AttributeError:
-                    rating = None
-
-                stays.append(AirBnBStay(booking_url, photo_url, description, price, rating))  # Add stay to query results
-            if len(stays) == 0:
-                pass
+            if multiprocessed:
+                with Pool() as pool:
+                    stays = pool.map(self.createStaysFromScrapedInfo, all_stays_div)
+            else:
+                stays = [self.createStaysFromScrapedInfo(stay_div) for stay_div in all_stays_div]
 
         stays = self.filter_stays(stays)  # Filter queried results
         return stays
+
+    def createStaysFromScrapedInfo(self, stay_div):
+        """
+        Creates a single stay from scraped info.
+
+        :param stay_div: list
+            A div, representing a stay, from an AirBnB page
+        """
+        try:
+            booking_url = self.get_booking_url(stay_div)
+        except AttributeError:
+            booking_url = None
+        try:
+            photo_url = self.get_photo_url(stay_div)
+        except AttributeError:
+            photo_url = None
+        try:
+            description = self.get_description(stay_div)
+        except AttributeError:
+            description = None
+        try:
+            price = self.get_price(stay_div)
+        except AttributeError:
+            price = None
+        try:
+            rating = self.get_rating(stay_div)
+        except AttributeError:
+            rating = None
+
+        return AirBnBStay(booking_url, photo_url, description, price, rating)  # Add stay to query results
 
     def params_are_valid(self, max_price, checkin, checkout, location, num_rooms):
         """
